@@ -3,6 +3,8 @@ import { Plus, Edit2, Trash2, Package, X } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
 import { useAuth } from '../contexts/AuthContext';
 import { Product } from '../data/mockData';
+import { AddProducts } from './AddProducs';
+
 
 export default function Products() {
   const { products, addProduct, updateProduct, deleteProduct } = useApp();
@@ -76,6 +78,7 @@ export default function Products() {
           <h1 className="text-2xl font-bold text-gray-900">Товары</h1>
           <p className="text-gray-600 text-sm mt-1">{products.length} товаров в базе</p>
         </div>
+     
         {canManage && (
           <button
             onClick={openAddModal}
@@ -86,7 +89,7 @@ export default function Products() {
           </button>
         )}
       </div>
-
+   <AddProducts/>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <input
           type="text"

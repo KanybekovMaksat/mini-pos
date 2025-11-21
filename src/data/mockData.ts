@@ -23,6 +23,7 @@ export interface Product {
   category: string;
   isFastProduct: boolean;
   imageUrl?: string;
+  barcode?: string;
 }
 
 export interface Client {
@@ -79,14 +80,14 @@ export const mockUsers: User[] = [
     email: 'admin@minipos.kg',
     role: 'admin',
     pointId: '1',
-    telegramChatId: '123456789'
+    telegramChatId: '123456789',
   },
   {
     id: '2',
     name: 'Бекет Асанов',
     email: 'cashier@minipos.kg',
     role: 'cashier',
-    pointId: '1'
+    pointId: '1',
   },
   {
     id: '3',
@@ -94,21 +95,21 @@ export const mockUsers: User[] = [
     email: 'owner@minipos.kg',
     role: 'owner',
     pointId: '1',
-    telegramChatId: '987654321'
-  }
+    telegramChatId: '987654321',
+  },
 ];
 
 export const mockPoints: Point[] = [
   {
     id: '1',
     name: 'Магазин "Ак-Орго"',
-    address: 'г. Бишкек, ул. Чуй 123'
+    address: 'г. Бишкек, ул. Чуй 123',
   },
   {
     id: '2',
     name: 'Магазин "Ак-Орго 2"',
-    address: 'г. Бишкек, ул. Московская 45'
-  }
+    address: 'г. Бишкек, ул. Московская 45',
+  },
 ];
 
 export const mockProducts: Product[] = [
@@ -118,7 +119,7 @@ export const mockProducts: Product[] = [
     name: 'Хлеб белый',
     price: 30,
     category: 'Хлебобулочные',
-    isFastProduct: true
+    isFastProduct: true,
   },
   {
     id: '2',
@@ -126,7 +127,7 @@ export const mockProducts: Product[] = [
     name: 'Молоко 1л',
     price: 65,
     category: 'Молочные',
-    isFastProduct: true
+    isFastProduct: true,
   },
   {
     id: '3',
@@ -134,7 +135,7 @@ export const mockProducts: Product[] = [
     name: 'Яйца 10шт',
     price: 120,
     category: 'Продукты',
-    isFastProduct: false
+    isFastProduct: false,
   },
   {
     id: '4',
@@ -142,7 +143,7 @@ export const mockProducts: Product[] = [
     name: 'Масло подсолнечное 1л',
     price: 150,
     category: 'Продукты',
-    isFastProduct: false
+    isFastProduct: false,
   },
   {
     id: '5',
@@ -150,7 +151,7 @@ export const mockProducts: Product[] = [
     name: 'Чай черный',
     price: 85,
     category: 'Напитки',
-    isFastProduct: true
+    isFastProduct: true,
   },
   {
     id: '6',
@@ -158,7 +159,7 @@ export const mockProducts: Product[] = [
     name: 'Сахар 1кг',
     price: 70,
     category: 'Продукты',
-    isFastProduct: false
+    isFastProduct: false,
   },
   {
     id: '7',
@@ -166,7 +167,7 @@ export const mockProducts: Product[] = [
     name: 'Мука 1кг',
     price: 50,
     category: 'Продукты',
-    isFastProduct: false
+    isFastProduct: false,
   },
   {
     id: '8',
@@ -174,8 +175,8 @@ export const mockProducts: Product[] = [
     name: 'Вода 1.5л',
     price: 25,
     category: 'Напитки',
-    isFastProduct: true
-  }
+    isFastProduct: true,
+  },
 ];
 
 export const mockClients: Client[] = [
@@ -183,14 +184,14 @@ export const mockClients: Client[] = [
     id: '1',
     name: 'Азамат Калыков',
     phone: '+996555123456',
-    notes: 'Постоянный клиент'
+    notes: 'Постоянный клиент',
   },
   {
     id: '2',
     name: 'Динара Саматова',
     phone: '+996777987654',
-    notes: 'VIP клиент'
-  }
+    notes: 'VIP клиент',
+  },
 ];
 
 export const mockReceipts: Receipt[] = [
@@ -201,13 +202,13 @@ export const mockReceipts: Receipt[] = [
     cashierName: 'Бекет Асанов',
     items: [
       { id: '1', productId: '1', productName: 'Хлеб белый', qty: 2, price: 30 },
-      { id: '2', productId: '2', productName: 'Молоко 1л', qty: 1, price: 65 }
+      { id: '2', productId: '2', productName: 'Молоко 1л', qty: 1, price: 65 },
     ],
     total: 125,
     discount: 0,
     paymentType: 'cash',
     status: 'paid',
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
   },
   {
     id: '1002',
@@ -218,14 +219,14 @@ export const mockReceipts: Receipt[] = [
     clientName: 'Азамат Калыков',
     items: [
       { id: '1', productId: '5', productName: 'Чай черный', qty: 3, price: 85 },
-      { id: '2', productId: '8', productName: 'Вода 1.5л', qty: 4, price: 25 }
+      { id: '2', productId: '8', productName: 'Вода 1.5л', qty: 4, price: 25 },
     ],
     total: 355,
     discount: 10,
     paymentType: 'qr',
     status: 'paid',
-    createdAt: new Date(Date.now() - 3600000).toISOString()
-  }
+    createdAt: new Date(Date.now() - 3600000).toISOString(),
+  },
 ];
 
 export const mockExpenses: Expense[] = [
@@ -234,15 +235,15 @@ export const mockExpenses: Expense[] = [
     pointId: '1',
     amount: 5000,
     description: 'Аренда помещения',
-    createdAt: new Date(Date.now() - 86400000).toISOString()
+    createdAt: new Date(Date.now() - 86400000).toISOString(),
   },
   {
     id: '2',
     pointId: '1',
     amount: 1200,
     description: 'Коммунальные услуги',
-    createdAt: new Date(Date.now() - 43200000).toISOString()
-  }
+    createdAt: new Date(Date.now() - 43200000).toISOString(),
+  },
 ];
 
 export const mockCashBalance: CashBalance = {
@@ -250,5 +251,5 @@ export const mockCashBalance: CashBalance = {
   pointId: '1',
   startBalance: 10000,
   endBalance: 14280,
-  date: new Date().toISOString()
+  date: new Date().toISOString(),
 };

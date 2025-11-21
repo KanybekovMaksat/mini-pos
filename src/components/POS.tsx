@@ -4,6 +4,7 @@ import { useApp } from '../contexts/AppContext';
 import { useAuth } from '../contexts/AuthContext';
 import { ReceiptItem } from '../data/mockData';
 import QRCodeModal from './QRCodeModal';
+import AddCart from './AddCart';
 
 export default function POS() {
   const { products, addReceipt, clients } = useApp();
@@ -136,6 +137,9 @@ export default function POS() {
               Все товары
             </button>
           </div>
+        </div>
+        <div className="w-[300px]">
+            <AddCart onAddToCart={(productId) => addToCart(productId)} />
         </div>
 
         <div className="flex-1 overflow-y-auto bg-white rounded-xl border border-gray-200 p-4">

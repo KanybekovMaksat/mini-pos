@@ -23,7 +23,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = (email: string, password: string): boolean => {
     const foundUser = mockUsers.find(u => u.email === email);
 
-    if (foundUser && password === 'password123') {
+    if (foundUser && password === '1234') {
       setUser(foundUser);
       localStorage.setItem('minipos_user', JSON.stringify(foundUser));
       return true;
