@@ -90,7 +90,7 @@ export default function Layout({
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
-              <img src="/eldik.png" className="w-10" alt="" />
+              <img src="https://eldikkassa.ustaz.tech/eldik.png" className="w-10" alt="" />
 
               <div>
                 <h1 className="text-xl font-bold text-gray-900">EldikKassa</h1>

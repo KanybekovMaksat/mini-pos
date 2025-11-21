@@ -24,7 +24,7 @@ export default function Login() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-xl ">
-          <img src="/web.png" className='h-[140px] md:h-[200px] w-full object-cover rounded-t-2xl' alt="" />
+          <img src="https://eldikkassa.ustaz.tech//web.png" className='h-[140px] md:h-[200px] w-full object-cover rounded-t-2xl' alt="" />
           <div className="p-4 md:p-8">
 
             <form onSubmit={handleSubmit} className="space-y-5">
