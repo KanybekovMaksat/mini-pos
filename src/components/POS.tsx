@@ -136,7 +136,7 @@ export default function POS() {
       printdata: generatePrintData(cart, total, discount, paymentType),
     };
     try {
-      await fetch('http://localhost:3001/print', {
+      await fetch('https://api.hackathon-eldik.makalabox.com/api/print/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
