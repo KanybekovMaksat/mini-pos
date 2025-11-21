@@ -33,7 +33,7 @@ const qrData = `https://eldikkassa.ustaz.tech/payment?amount=${amount}&currency=
               size={250}            
               includeMargin={false}
               imageSettings={{
-                src: 'https://eldikkassa.ustaz.tech//elqr.png',
+                src: 'https://eldikkassa.ustaz.tech/elqr.png',
                 height: 40,
                 width: 40,
                 excavate: true,

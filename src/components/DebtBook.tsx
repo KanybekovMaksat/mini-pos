@@ -63,7 +63,7 @@ export default function DebtBook() {
     <div className="p-4 max-w-4xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold">Долговая тетрадь 2.0</h1>
 
-      <div className="bg-white rounded-xl p-4 border border-gray-200">
+      {/* <div className="bg-white rounded-xl p-4 border border-gray-200">
         <h2 className="font-bold mb-2">Добавить долг</h2>
         <select
           value={selectedClient}
@@ -95,7 +95,7 @@ export default function DebtBook() {
         >
           Добавить долг
         </button>
-      </div>
+      </div> */}
 
       <div className="bg-white rounded-xl p-4 border border-gray-200">
         <h2 className="font-bold mb-4">Список долгов</h2>

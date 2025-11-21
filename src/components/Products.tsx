@@ -89,7 +89,9 @@ export default function Products() {
           </button>
         )}
       </div>
+      <div className="w-[300px]">
    <AddProducts/>
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <input
           type="text"

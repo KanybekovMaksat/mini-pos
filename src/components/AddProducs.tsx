@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { useApp } from '../contexts/AppContext';
 import { Product } from '../data/mockData';
+import { toast } from 'react-toastify';
 
 export function AddProducts() {
   const { products, addProduct } = useApp();
@@ -13,19 +14,17 @@ export function AddProducts() {
   const [existingProduct, setExistingProduct] = useState<Product | null>(null);
   const [name, setName] = useState('');
   const [price, setPrice] = useState<number | ''>('');
-  const [message, setMessage] = useState('');
 
   const SCANNER_ID = 'html5qr-scanner';
 
   const startScanner = () => {
-    setMessage('');
     setIsScanning(true);
     setBarcode(null);
     setExistingProduct(null);
 
     setTimeout(() => {
       if (!document.getElementById(SCANNER_ID)) {
-        setMessage('Ошибка: сканер не найден');
+        toast.error('Ошибка: сканер не найден');
         setIsScanning(false);
         return;
       }
@@ -34,10 +33,7 @@ export function AddProducts() {
 
       html5QrcodeRef.current.start(
         { facingMode: 'environment' },
-        {
-          fps: 20 ,
-          qrbox: { width: 300, height: 150 },
-        },
+        { fps: 20, qrbox: 300 },
         (decodedText) => {
           html5QrcodeRef.current?.stop();
           setIsScanning(false);
@@ -46,7 +42,7 @@ export function AddProducts() {
           const found = products.find((p) => p.barcode === decodedText);
           if (found) {
             setExistingProduct(found);
-            setMessage(`Товар "${found.name}" уже существует!`);
+            toast.warn(`Товар "${found.name}" уже существует!`);
           } else {
             setExistingProduct(null);
           }
@@ -60,7 +56,7 @@ export function AddProducts() {
 
   const handleAddProduct = () => {
     if (!barcode || !name || price === '') {
-      setMessage('Введите название и цену товара');
+      toast.error('Введите название и цену товара');
       return;
     }
 
@@ -75,7 +71,7 @@ export function AddProducts() {
     };
 
     addProduct(newProduct);
-    setMessage(`Товар "${name}" добавлен!`);
+    toast.success(`Товар "${name}" добавлен!`);
     resetScanner();
   };
 
@@ -85,12 +81,11 @@ export function AddProducts() {
     setExistingProduct(null);
     setName('');
     setPrice('');
-    setMessage('');
     html5QrcodeRef.current?.stop().catch(() => {});
   };
 
   return (
-    <div className="p-4 border rounded w-full max-w-md">
+    <div className="p-4 border rounded w-full max-w-md my-4">
       <h3 className="mb-2 font-bold">Добавить товар через сканер</h3>
 
       {!barcode && !isScanning && (
@@ -107,7 +102,7 @@ export function AddProducts() {
           <div
             ref={scannerRef}
             id={SCANNER_ID}
-            style={{ width: '100%', height: '300px', background: '#ccc' }}
+            style={{ background: 'white', borderRadius: '8px' }}
           />
           <button
             onClick={resetScanner}
@@ -169,8 +164,6 @@ export function AddProducts() {
           </button>
         </div>
       )}
-
-      {message && <p className="mt-2 text-sm text-gray-700">{message}</p>}
     </div>
   );
 }

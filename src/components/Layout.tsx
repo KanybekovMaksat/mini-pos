@@ -62,15 +62,15 @@ export default function Layout({
       roles: ['admin', 'owner'],
     },
     {
-      id: 'settings',
-      label: 'Настройки',
-      icon: Settings,
-      roles: ['admin', 'cashier', 'owner'],
-    },
-    {
       id: 'debtBook',
       label: 'Дептер',
       icon: BookText,
+      roles: ['admin', 'cashier', 'owner'],
+    },
+    {
+      id: 'settings',
+      label: 'Настройки',
+      icon: Settings,
       roles: ['admin', 'cashier', 'owner'],
     },
   ];

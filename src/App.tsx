@@ -10,6 +10,8 @@ import Reports from './components/Reports';
 import Analytics from './components/Analytics';
 import Settings from './components/Settings';
 import DebtBook from './components/DebtBook';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function AppContent() {
   const { isAuthenticated } = useAuth();
@@ -31,10 +33,10 @@ function AppContent() {
         return <Reports />;
       case 'analytics':
         return <Analytics />;
+      case 'debtBook':
+        return <DebtBook />;
       case 'settings':
         return <Settings />;
-      case 'debtBook':
-        return <DebtBook/>;
       default:
         return <POS />;
     }
@@ -51,6 +53,7 @@ function App() {
   return (
     <AuthProvider>
       <AppProvider>
+  <ToastContainer position="top-right" autoClose={3000} />
         <AppContent />
       </AppProvider>
     </AuthProvider>

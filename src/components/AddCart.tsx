@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Barcode } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
+import { toast } from 'react-toastify';
 
 interface BarcodeScannerAddToCartProps {
   onAddToCart: (productId: string) => void;
@@ -10,17 +11,15 @@ interface BarcodeScannerAddToCartProps {
 export default function AddCart({ onAddToCart }: BarcodeScannerAddToCartProps) {
   const { products } = useApp();
   const [isScanning, setIsScanning] = useState(false);
-  const [message, setMessage] = useState('');
   const scannerRef = useRef<Html5Qrcode | null>(null);
-  const containerRef = useRef<HTMLDivElement | null>(null); // Ссылка на div
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   const startScanner = () => {
     if (!containerRef.current) {
-      setMessage('Ошибка: контейнер для сканера не найден');
+      toast.error('Ошибка: контейнер для сканера не найден');
       return;
     }
 
-    setMessage('');
     setIsScanning(true);
 
     if (!scannerRef.current) {
@@ -35,9 +34,9 @@ export default function AddCart({ onAddToCart }: BarcodeScannerAddToCartProps) {
           const product = products.find((p) => p.barcode === decodedText);
           if (product) {
             onAddToCart(product.id);
-            setMessage(`Товар "${product.name}" добавлен в чек`);
+            toast.success(`Товар "${product.name}" добавлен в чек`);
           } else {
-            setMessage(`Товар с штрихкодом "${decodedText}" не найден`);
+            toast.warn(`Товар с штрихкодом "${decodedText}" не найден`);
           }
           stopScanner();
         },
@@ -47,7 +46,7 @@ export default function AddCart({ onAddToCart }: BarcodeScannerAddToCartProps) {
       )
       .catch((err) => {
         console.error('Ошибка сканера:', err);
-        setMessage('Не удалось запустить сканер');
+        toast.error('Не удалось запустить сканер');
         setIsScanning(false);
       });
   };
@@ -70,16 +69,12 @@ export default function AddCart({ onAddToCart }: BarcodeScannerAddToCartProps) {
         </button>
       )}
 
-      {/* Контейнер сканера */}
       <div
         ref={containerRef}
         id="barcode-scanner-container"
-        className={`w-full h-64 rounded-xl mt-2 ${
-          isScanning ? 'block' : 'hidden'
-        }`}
+        className={`w-full h-64 rounded-xl mt-2 ${isScanning ? 'block' : 'hidden'}`}
       />
 
-      {/* Кнопка Назад */}
       {isScanning && (
         <button
           onClick={stopScanner}
@@ -88,8 +83,6 @@ export default function AddCart({ onAddToCart }: BarcodeScannerAddToCartProps) {
           Назад
         </button>
       )}
-
-      {message && <p className="mt-2 text-sm text-gray-700">{message}</p>}
     </div>
   );
 }
