@@ -76,7 +76,7 @@ export interface CashBalance {
 export const mockUsers: User[] = [
   {
     id: '1',
-    name: 'Алия Иманова',
+    name: 'Максат Каныбеков',
     email: 'admin@minipos.kg',
     role: 'admin',
     pointId: '1',
@@ -253,3 +253,50 @@ export const mockCashBalance: CashBalance = {
   endBalance: 14280,
   date: new Date().toISOString(),
 };
+
+
+export interface Debt {
+  id: string;
+  clientId: string;
+  amount: number; // текущий долг
+  status: 'active' | 'closed';
+  entries: DebtEntry[];
+}
+
+export interface DebtEntry {
+  id: string;
+  date: string;
+  type: 'debt' | 'payment';
+  amount: number;
+  paymentType?: 'cash' | 'qr'; // только для платежей
+  comment?: string;
+}
+
+export const mockDebts: Debt[] = [
+  {
+    id: '1',
+    clientId: '1',
+    amount: 500,
+    status: 'active',
+    entries: [
+      { id: '1', date: '2025-11-22', type: 'debt', amount: 500, comment: 'Купил хлеб и молоко' },
+      { id: '2', date: '2025-11-23', type: 'payment', amount: 200, paymentType: 'cash' },
+    ],
+  },
+];
+export interface Debt {
+  id: string;
+  clientId: string;
+  amount: number;
+  status: 'active' | 'closed';
+  entries: DebtEntry[];
+}
+
+export interface DebtEntry {
+  id: string;
+  date: string;
+  type: 'debt' | 'payment';
+  amount: number;
+  paymentType?: 'cash' | 'qr';
+  comment?: string;
+}

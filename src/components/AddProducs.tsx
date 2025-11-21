@@ -32,33 +32,29 @@ export function AddProducts() {
 
       html5QrcodeRef.current = new Html5Qrcode(SCANNER_ID);
 
-      html5QrcodeRef.current
-        .start(
-          { facingMode: 'environment' },
-          { fps: 10, qrbox: 250 },
-          (decodedText) => {
-            html5QrcodeRef.current?.stop();
-            setIsScanning(false);
-
-            setBarcode(decodedText);
-
-            const found = products.find(p => p.barcode === decodedText);
-            if (found) {
-              setExistingProduct(found);
-              setMessage(`Товар "${found.name}" уже существует!`);
-            } else {
-              setExistingProduct(null);
-            }
-          },
-          (error) => {
-            // ошибки сканирования можно игнорировать
-          }
-        )
-        .catch((err) => {
-          console.error(err);
-          setMessage('Не удалось запустить сканер');
+      html5QrcodeRef.current.start(
+        { facingMode: 'environment' },
+        {
+          fps: 20 ,
+          qrbox: { width: 300, height: 150 },
+        },
+        (decodedText) => {
+          html5QrcodeRef.current?.stop();
           setIsScanning(false);
-        });
+          setBarcode(decodedText);
+
+          const found = products.find((p) => p.barcode === decodedText);
+          if (found) {
+            setExistingProduct(found);
+            setMessage(`Товар "${found.name}" уже существует!`);
+          } else {
+            setExistingProduct(null);
+          }
+        },
+        (error) => {
+          // ошибки сканирования можно игнорировать
+        }
+      );
     }, 0);
   };
 
@@ -124,9 +120,13 @@ export function AddProducts() {
 
       {barcode && existingProduct && (
         <div className="mt-2 p-2 border rounded bg-yellow-50">
-          <p>Штрихкод: <b>{existingProduct.barcode}</b></p>
+          <p>
+            Штрихкод: <b>{existingProduct.barcode}</b>
+          </p>
           <p>Товар уже существует:</p>
-          <p><b>{existingProduct.name}</b> — {existingProduct.price} сом</p>
+          <p>
+            <b>{existingProduct.name}</b> — {existingProduct.price} сом
+          </p>
           <button
             onClick={resetScanner}
             className="mt-2 bg-gray-500 text-white p-2 rounded w-full hover:bg-gray-600"
@@ -138,7 +138,9 @@ export function AddProducts() {
 
       {barcode && !existingProduct && (
         <div className="mt-2 p-2 border rounded bg-gray-50">
-          <p>Штрихкод: <b>{barcode}</b></p>
+          <p>
+            Штрихкод: <b>{barcode}</b>
+          </p>
           <input
             type="text"
             placeholder="Название товара"

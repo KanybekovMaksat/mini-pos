@@ -1,16 +1,43 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
-import { Product, Receipt, mockProducts, mockReceipts, mockClients, Client } from '../data/mockData';
+import {
+  Product,
+  Receipt,
+  mockProducts,
+  mockReceipts,
+  mockClients,
+  Client,
+  mockDebts,
+} from '../data/mockData';
 
 interface AppContextType {
   products: Product[];
   receipts: Receipt[];
   clients: Client[];
+  debts: Debt[];
   addProduct: (product: Omit<Product, 'id'>) => void;
   updateProduct: (id: string, product: Partial<Product>) => void;
   deleteProduct: (id: string) => void;
   addReceipt: (receipt: Omit<Receipt, 'id'>) => void;
   cancelReceipt: (id: string, reason: string) => void;
   addClient: (client: Omit<Client, 'id'>) => void;
+  addDebt: (clientId: string, amount: number, comment?: string) => void;
+  payDebt: (clientId: string, amount: number, paymentType: 'cash' | 'qr') => void;
+}
+export interface Debt {
+  id: string;
+  clientId: string;
+  amount: number;
+  status: 'active' | 'closed';
+  entries: DebtEntry[];
+}
+
+export interface DebtEntry {
+  id: string;
+  date: string;
+  type: 'debt' | 'payment';
+  amount: number;
+  paymentType?: 'cash' | 'qr';
+  comment?: string;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -30,6 +57,58 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const saved = localStorage.getItem('minipos_clients');
     return saved ? JSON.parse(saved) : mockClients;
   });
+  const [debts, setDebts] = useState<Debt[]>(mockDebts);
+
+  const addDebt = (clientId: string, amount: number, comment?: string) => {
+    const existingDebt = debts.find((d) => d.clientId === clientId);
+    const newEntry: DebtEntry = {
+      id: Date.now().toString(),
+      date: new Date().toISOString(),
+      type: 'debt',
+      amount,
+      comment,
+    };
+
+    if (existingDebt) {
+      existingDebt.amount += amount;
+      existingDebt.entries.push(newEntry);
+      existingDebt.status = 'active';
+      setDebts([...debts]);
+    } else {
+      setDebts([
+        ...debts,
+        {
+          id: Date.now().toString(),
+          clientId,
+          amount,
+          status: 'active',
+          entries: [newEntry],
+        },
+      ]);
+    }
+  };
+
+  const payDebt = (
+    clientId: string,
+    amount: number,
+    paymentType: 'cash' | 'qr'
+  ) => {
+    const debt = debts.find((d) => d.clientId === clientId);
+    if (!debt) return;
+
+    const paymentEntry: DebtEntry = {
+      id: Date.now().toString(),
+      date: new Date().toISOString(),
+      type: 'payment',
+      amount,
+      paymentType,
+    };
+
+    debt.entries.push(paymentEntry);
+    debt.amount -= amount;
+    if (debt.amount <= 0) debt.status = 'closed';
+    setDebts([...debts]);
+  };
 
   const addProduct = (product: Omit<Product, 'id'>) => {
     const newProduct = { ...product, id: Date.now().toString() };
@@ -39,13 +118,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const updateProduct = (id: string, product: Partial<Product>) => {
-    const updated = products.map(p => p.id === id ? { ...p, ...product } : p);
+    const updated = products.map((p) =>
+      p.id === id ? { ...p, ...product } : p
+    );
     setProducts(updated);
     localStorage.setItem('minipos_products', JSON.stringify(updated));
   };
 
   const deleteProduct = (id: string) => {
-    const updated = products.filter(p => p.id !== id);
+    const updated = products.filter((p) => p.id !== id);
     setProducts(updated);
     localStorage.setItem('minipos_products', JSON.stringify(updated));
   };
@@ -53,7 +134,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addReceipt = (receipt: Omit<Receipt, 'id'>) => {
     const newReceipt = {
       ...receipt,
-      id: (1000 + receipts.length + 1).toString()
+      id: (1000 + receipts.length + 1).toString(),
     };
     const updated = [newReceipt, ...receipts];
     setReceipts(updated);
@@ -61,8 +142,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const cancelReceipt = (id: string, reason: string) => {
-    const updated = receipts.map(r =>
-      r.id === id ? { ...r, status: 'cancelled' as const, cancelReason: reason } : r
+    const updated = receipts.map((r) =>
+      r.id === id
+        ? { ...r, status: 'cancelled' as const, cancelReason: reason }
+        : r
     );
     setReceipts(updated);
     localStorage.setItem('minipos_receipts', JSON.stringify(updated));
@@ -76,19 +159,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AppContext.Provider value={{
-      products,
-      receipts,
-      clients,
-      addProduct,
-      updateProduct,
-      deleteProduct,
-      addReceipt,
-      cancelReceipt,
-      addClient
-    }}>
-      {children}
-    </AppContext.Provider>
+<AppContext.Provider
+  value={{
+    products,
+    receipts,
+    clients,
+    debts,
+    addProduct,
+    updateProduct,
+    deleteProduct,
+    addReceipt,
+    cancelReceipt,
+    addClient,
+    addDebt,
+    payDebt,
+  }}
+>
+  {children}
+</AppContext.Provider>
   );
 }
 

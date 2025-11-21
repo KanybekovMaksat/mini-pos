@@ -9,6 +9,7 @@ import History from './components/History';
 import Reports from './components/Reports';
 import Analytics from './components/Analytics';
 import Settings from './components/Settings';
+import DebtBook from './components/DebtBook';
 
 function AppContent() {
   const { isAuthenticated } = useAuth();
@@ -32,6 +33,8 @@ function AppContent() {
         return <Analytics />;
       case 'settings':
         return <Settings />;
+      case 'debtBook':
+        return <DebtBook/>;
       default:
         return <POS />;
     }
