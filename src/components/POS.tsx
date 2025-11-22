@@ -194,11 +194,10 @@ export default function POS() {
               Все товары
             </button>
           </div>
-        <div className="w-[300px]">
-          <AddCart onAddToCart={addToCart} />
+          <div className="w-[300px]">
+            <AddCart onAddToCart={addToCart} />
+          </div>
         </div>
-        </div>
-
 
         <div className="flex-1 overflow-y-auto bg-white rounded-xl border border-gray-200 p-4">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">

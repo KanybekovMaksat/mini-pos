@@ -13,8 +13,8 @@ export function generatePrintData(
   const lines: string[] = [];
   const separator = "----------------------------";
 
-  lines.push(`<F3232><CENTER>${separator}</CENTER></F3232>`);
-  lines.push(`<F3232><FB><CENTER>Eldik Kassa</CENTER></FB></F3232>`);
+  lines.push(`<F3232><CENTER>----------------------------\r</CENTER></F3232>`);
+  lines.push(`<CENTER><F3232>Eldik Kassa</F3232></CENTER>`);
   lines.push(`<F2424><CENTER>${new Date().toLocaleString('ru-KG', { hour12: false })}</CENTER></F2424>`);
 
   items.forEach(item => {
