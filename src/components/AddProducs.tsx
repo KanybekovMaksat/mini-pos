@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { useApp } from '../contexts/AppContext';
 import { Product } from '../data/mockData';
@@ -6,8 +6,9 @@ import { toast } from 'react-toastify';
 
 export function AddProducts() {
   const { products, addProduct } = useApp();
-  const scannerRef = useRef<HTMLDivElement>(null);
-  const html5QrcodeRef = useRef<Html5Qrcode | null>(null);
+
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const scannerRef = useRef<Html5Qrcode | null>(null);
 
   const [isScanning, setIsScanning] = useState(false);
   const [barcode, setBarcode] = useState<string | null>(null);
@@ -15,44 +16,57 @@ export function AddProducts() {
   const [name, setName] = useState('');
   const [price, setPrice] = useState<number | ''>('');
 
-  const SCANNER_ID = 'html5qr-scanner';
+  const startScanner = () => {
+    if (!containerRef.current) return;
+    setIsScanning(true);
 
-  // useEffect для запуска сканера
-  useEffect(() => {
-    if (isScanning && scannerRef.current) {
-      html5QrcodeRef.current = new Html5Qrcode(SCANNER_ID);
-
-      html5QrcodeRef.current
-        .start(
-          { facingMode: 'environment' },
-          { fps: 20, qrbox: { width: 300, height: 150 } },
-          (decodedText) => {
-            html5QrcodeRef.current?.stop();
-            setIsScanning(false);
-            setBarcode(decodedText);
-
-            const found = products.find((p) => p.barcode === decodedText);
-            if (found) {
-              setExistingProduct(found);
-              toast.warn(`Товар "${found.name}" уже существует!`);
-            } else {
-              setExistingProduct(null);
-            }
-          },
-          (error) => {
-            // игнорируем ошибки сканирования
-          }
-        )
-        .catch(() => {
-          toast.error('Не удалось запустить сканер');
-          setIsScanning(false);
-        });
+    if (!scannerRef.current) {
+      scannerRef.current = new Html5Qrcode(containerRef.current.id);
     }
 
-    return () => {
-      html5QrcodeRef.current?.stop().catch(() => {});
-    };
-  }, [isScanning, products]);
+    scannerRef.current
+      .start(
+        { facingMode: 'environment' },
+        { fps: 20, qrbox: { width: 300, height: 150 } },
+        async (decodedText) => {
+          setBarcode(decodedText);
+          const found = products.find((p) => p.barcode === decodedText);
+          if (found) {
+            setExistingProduct(found);
+            toast.warn(`Товар "${found.name}" уже существует!`);
+          } else {
+            setExistingProduct(null);
+          }
+          await stopScanner(); // ждём полной остановки
+        },
+        (error) => {}
+      )
+      .catch((err) => {
+        console.error('Ошибка сканера:', err);
+        toast.error('Не удалось запустить сканер');
+        setIsScanning(false);
+      });
+  };
+
+  const stopScanner = async () => {
+    if (scannerRef.current) {
+      try {
+        await scannerRef.current.stop();
+      } catch {}
+      try {
+        await scannerRef.current.clear();
+      } catch {}
+      setIsScanning(false);
+    }
+  };
+
+  const resetScanner = async () => {
+    await stopScanner();
+    setBarcode(null);
+    setExistingProduct(null);
+    setName('');
+    setPrice('');
+  };
 
   const handleAddProduct = () => {
     if (!barcode || !name || price === '') {
@@ -75,22 +89,13 @@ export function AddProducts() {
     resetScanner();
   };
 
-  const resetScanner = () => {
-    setIsScanning(false);
-    setBarcode(null);
-    setExistingProduct(null);
-    setName('');
-    setPrice('');
-    html5QrcodeRef.current?.stop().catch(() => {});
-  };
-
   return (
     <div className="p-4 border rounded w-full max-w-md my-4">
       <h3 className="mb-2 font-bold">Добавить товар через сканер</h3>
 
       {!barcode && !isScanning && (
         <button
-          onClick={() => setIsScanning(true)}
+          onClick={startScanner}
           className="bg-blue-500 text-white p-2 rounded w-full mb-2 hover:bg-blue-600"
         >
           Начать сканирование
@@ -98,9 +103,9 @@ export function AddProducts() {
       )}
 
       <div
-        ref={scannerRef}
-        id={SCANNER_ID}
-        className={`${isScanning ? 'block' : 'hidden'} w-full  mb-2`}
+        ref={containerRef}
+        id="html5qr-scanner"
+        className={`${isScanning ? 'block' : 'hidden'} w-full mb-2`}
       />
 
       {isScanning && (
@@ -114,13 +119,9 @@ export function AddProducts() {
 
       {barcode && existingProduct && (
         <div className="mt-2 p-2 border rounded bg-yellow-50">
-          <p>
-            Штрихкод: <b>{existingProduct.barcode}</b>
-          </p>
+          <p>Штрихкод: <b>{existingProduct.barcode}</b></p>
           <p>Товар уже существует:</p>
-          <p>
-            <b>{existingProduct.name}</b> — {existingProduct.price} сом
-          </p>
+          <p><b>{existingProduct.name}</b> — {existingProduct.price} сом</p>
           <button
             onClick={resetScanner}
             className="mt-2 bg-gray-500 text-white p-2 rounded w-full hover:bg-gray-600"
@@ -132,9 +133,7 @@ export function AddProducts() {
 
       {barcode && !existingProduct && (
         <div className="mt-2 p-2 border rounded bg-gray-50">
-          <p>
-            Штрихкод: <b>{barcode}</b>
-          </p>
+          <p>Штрихкод: <b>{barcode}</b></p>
           <input
             type="text"
             placeholder="Название товара"
