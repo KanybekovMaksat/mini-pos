@@ -36,6 +36,6 @@ export function generatePrintData(
     `<F3232><CENTER>ИТОГО: ${total.toFixed(2)}</CENTER></F3232>` +
     `<F2424><CENTER>Тип оплаты: ${payment}</CENTER></F2424>` +
     `<CENTER>Спасибо за покупку\r</CENTER>` +
-    `<F3232><CENTER>${separator}\r</CENTER></F3232> \r\n `;
+    `<F3232><CENTER>${separator}\r</CENTER></F3232> \r\n `
   );
 }
