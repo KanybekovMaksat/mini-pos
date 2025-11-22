@@ -33,6 +33,6 @@ export function generatePrintData(
   lines.push(`<F2424><CENTER>Тип оплаты: ${payment}</CENTER></F2424>`);
 
   lines.push(`<CENTER>Спасибо за покупку\r</CENTER>\r\n`);
-  lines.push(`<F3232><CENTER>----------------------------\r</CENTER></F3232>`);
+
   return lines.join("\r\n");
 }
