@@ -1,22 +1,24 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState, useRef } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
+import { Barcode } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
-import { Product } from '../data/mockData';
 import { toast } from 'react-toastify';
 
-export default function AddProducts() {
-  const { products, addProduct } = useApp();
+interface BarcodeScannerAddToCartProps {
+  onAddToCart: (productId: string) => void;
+}
+
+export default function AddCart({ onAddToCart }: BarcodeScannerAddToCartProps) {
+  const { products } = useApp();
+  const [isScanning, setIsScanning] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  const [isScanning, setIsScanning] = useState(false);
-  const [barcode, setBarcode] = useState<string | null>(null);
-  const [existingProduct, setExistingProduct] = useState<Product | null>(null);
-  const [name, setName] = useState('');
-  const [price, setPrice] = useState<number | ''>('');
-
   const startScanner = () => {
-    if (!containerRef.current) return;
+    if (!containerRef.current) {
+      toast.error('Ошибка: контейнер для сканера не найден');
+      return;
+    }
 
     setIsScanning(true);
 
@@ -29,18 +31,17 @@ export default function AddProducts() {
         { facingMode: 'environment' },
         { fps: 20, qrbox: { width: 300, height: 150 } },
         (decodedText) => {
-          setBarcode(decodedText);
-          const found = products.find((p) => p.barcode === decodedText);
-          if (found) {
-            setExistingProduct(found);
-            toast.warn(`Товар "${found.name}" уже существует!`);
+          const product = products.find((p) => p.barcode === decodedText);
+          if (product) {
+            onAddToCart(product.id);
+            toast.success(`Товар "${product.name}" добавлен в чек`);
           } else {
-            setExistingProduct(null);
+            toast.warn(`Товар с штрихкодом "${decodedText}" не найден`);
           }
           stopScanner();
         },
         (error) => {
-          // можно игнорировать ошибки сканирования
+          // ошибки сканирования можно игнорировать
         }
       )
       .catch((err) => {
@@ -50,134 +51,37 @@ export default function AddProducts() {
       });
   };
 
-  const stopScanner = async () => {
+  const stopScanner = () => {
     if (scannerRef.current) {
-      try {
-        await scannerRef.current.stop(); // остановка сканирования
-      } catch (err) {
-        console.warn('Сканер не удалось остановить:', err);
-      }
-      try {
-        await scannerRef.current.clear(); // освобождаем ресурсы
-      } catch {}
-      setIsScanning(false); // только после полной остановки
+      scannerRef.current.stop().finally(() => setIsScanning(false));
     }
   };
-
-  const resetScanner = async () => {
-    await stopScanner();
-    setBarcode(null);
-    setExistingProduct(null);
-    setName('');
-    setPrice('');
-  };
-
-  const handleAddProduct = () => {
-    if (!barcode || !name || price === '') {
-      toast.error('Введите название и цену товара');
-      return;
-    }
-
-    const newProduct: Omit<Product, 'id'> = {
-      pointId: '1',
-      name,
-      price: Number(price),
-      category: 'Без категории',
-      isFastProduct: false,
-      imageUrl: '',
-      barcode,
-    };
-
-    addProduct(newProduct);
-    toast.success(`Товар "${name}" добавлен!`);
-    resetScanner();
-  };
-
-  // очистка при размонтировании
-  useEffect(() => {
-    return () => {
-      stopScanner();
-    };
-  }, []);
 
   return (
-    <div className="p-4 border rounded w-full max-w-md my-4">
-      <h3 className="mb-2 font-bold">Добавить товар через сканер</h3>
-
-      {!barcode && !isScanning && (
+    <div className="mb-4 relative">
+      {!isScanning && (
         <button
           onClick={startScanner}
-          className="bg-blue-500 text-white p-2 rounded w-full mb-2 hover:bg-blue-600"
+          className="flex items-center gap-2 bg-[#008de4] text-white px-4 py-2 font-medium transition rounded-lg hover:bg-green-600"
         >
-          Начать сканирование
+          <Barcode className="w-5 h-5" />
+          Сканировать товар
         </button>
       )}
 
       <div
         ref={containerRef}
-        id="html5qr-scanner-container"
-        className={`${isScanning ? 'block' : 'hidden'} w-full mb-2`}
+        id="barcode-scanner-container"
+        className={`w-full h-64 rounded-xl mt-2 ${isScanning ? 'block' : 'hidden'}`}
       />
 
       {isScanning && (
         <button
-          onClick={async () => await resetScanner()}
-          className="bg-gray-500 text-white p-2 rounded w-full hover:bg-gray-600 mb-2"
+          onClick={stopScanner}
+          className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-lg"
         >
           Назад
         </button>
-      )}
-
-      {barcode && existingProduct && (
-        <div className="mt-2 p-2 border rounded bg-yellow-50">
-          <p>
-            Штрихкод: <b>{existingProduct.barcode}</b>
-          </p>
-          <p>Товар уже существует:</p>
-          <p>
-            <b>{existingProduct.name}</b> — {existingProduct.price} сом
-          </p>
-          <button
-            onClick={resetScanner}
-            className="mt-2 bg-gray-500 text-white p-2 rounded w-full hover:bg-gray-600"
-          >
-            Назад
-          </button>
-        </div>
-      )}
-
-      {barcode && !existingProduct && (
-        <div className="mt-2 p-2 border rounded bg-gray-50">
-          <p>
-            Штрихкод: <b>{barcode}</b>
-          </p>
-          <input
-            type="text"
-            placeholder="Название товара"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full mb-2 p-1 border rounded"
-          />
-          <input
-            type="number"
-            placeholder="Цена"
-            value={price}
-            onChange={(e) => setPrice(Number(e.target.value))}
-            className="w-full mb-2 p-1 border rounded"
-          />
-          <button
-            onClick={handleAddProduct}
-            className="bg-green-500 text-white p-2 rounded w-full hover:bg-green-600"
-          >
-            Добавить товар
-          </button>
-          <button
-            onClick={resetScanner}
-            className="mt-2 bg-gray-500 text-white p-2 rounded w-full hover:bg-gray-600"
-          >
-            Назад
-          </button>
-        </div>
       )}
     </div>
   );
