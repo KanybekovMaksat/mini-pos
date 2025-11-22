@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { useApp } from '../contexts/AppContext';
 import { Product } from '../data/mockData';
@@ -17,42 +17,42 @@ export function AddProducts() {
 
   const SCANNER_ID = 'html5qr-scanner';
 
-  const startScanner = () => {
-    setIsScanning(true);
-    setBarcode(null);
-    setExistingProduct(null);
-
-    setTimeout(() => {
-      if (!document.getElementById(SCANNER_ID)) {
-        toast.error('Ошибка: сканер не найден');
-        setIsScanning(false);
-        return;
-      }
-
+  // useEffect для запуска сканера
+  useEffect(() => {
+    if (isScanning && scannerRef.current) {
       html5QrcodeRef.current = new Html5Qrcode(SCANNER_ID);
 
-      html5QrcodeRef.current.start(
-        { facingMode: 'environment' },
-        { fps: 30, qrbox: 420 },
-        (decodedText) => {
-          html5QrcodeRef.current?.stop();
-          setIsScanning(false);
-          setBarcode(decodedText);
+      html5QrcodeRef.current
+        .start(
+          { facingMode: 'environment' },
+          { fps: 20, qrbox: { width: 300, height: 150 } },
+          (decodedText) => {
+            html5QrcodeRef.current?.stop();
+            setIsScanning(false);
+            setBarcode(decodedText);
 
-          const found = products.find((p) => p.barcode === decodedText);
-          if (found) {
-            setExistingProduct(found);
-            toast.warn(`Товар "${found.name}" уже существует!`);
-          } else {
-            setExistingProduct(null);
+            const found = products.find((p) => p.barcode === decodedText);
+            if (found) {
+              setExistingProduct(found);
+              toast.warn(`Товар "${found.name}" уже существует!`);
+            } else {
+              setExistingProduct(null);
+            }
+          },
+          (error) => {
+            // игнорируем ошибки сканирования
           }
-        },
-        (error) => {
+        )
+        .catch(() => {
+          toast.error('Не удалось запустить сканер');
+          setIsScanning(false);
+        });
+    }
 
-        }
-      );
-    }, 0);
-  };
+    return () => {
+      html5QrcodeRef.current?.stop().catch(() => {});
+    };
+  }, [isScanning, products]);
 
   const handleAddProduct = () => {
     if (!barcode || !name || price === '') {
@@ -90,27 +90,26 @@ export function AddProducts() {
 
       {!barcode && !isScanning && (
         <button
-          onClick={startScanner}
+          onClick={() => setIsScanning(true)}
           className="bg-blue-500 text-white p-2 rounded w-full mb-2 hover:bg-blue-600"
         >
           Начать сканирование
         </button>
       )}
 
+      <div
+        ref={scannerRef}
+        id={SCANNER_ID}
+        className={`${isScanning ? 'block' : 'hidden'} w-full  mb-2`}
+      />
+
       {isScanning && (
-        <div>
-          <div
-            ref={scannerRef}
-            id={SCANNER_ID}
-            style={{ background: 'white' }}
-          />
-          <button
-            onClick={resetScanner}
-            className="mt-2 bg-gray-500 text-white p-2 rounded w-full hover:bg-gray-600"
-          >
-            Назад
-          </button>
-        </div>
+        <button
+          onClick={resetScanner}
+          className="bg-gray-500 text-white p-2 rounded w-full hover:bg-gray-600 mb-2"
+        >
+          Назад
+        </button>
       )}
 
       {barcode && existingProduct && (

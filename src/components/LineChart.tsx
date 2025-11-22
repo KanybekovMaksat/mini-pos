@@ -34,7 +34,6 @@ const RevenueBarChart: FC<BarChartProps> = ({ receipts, period = 'week' }) => {
     dailyRevenue.set(dateStr, (dailyRevenue.get(dateStr) || 0) + receipt.total);
   });
 
-  // --- формируем массив с датами и выручкой ---
   const daysCount = period === 'day' ? 1 : period === 'week' ? 7 : 30;
   const labels: string[] = [];
   const data: number[] = [];
@@ -80,7 +79,34 @@ const RevenueBarChart: FC<BarChartProps> = ({ receipts, period = 'week' }) => {
     },
   };
 
-  return <Bar data={chartData} options={options} />;
+  return<div style={{ width: '100%', height: '300px' }}>
+  <Bar
+    data={{
+      labels: labels,
+      datasets: [
+        {
+          label: 'Выручка, с',
+          data: data,
+          backgroundColor: 'rgba(59,130,246,0.7)',
+          borderRadius: 6,
+        },
+      ],
+    }}
+    options={{
+      responsive: true,
+      maintainAspectRatio: false, // важно для Telegram
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx: any) => `${ctx.parsed.y.toFixed(0)} с`,
+          },
+        },
+      },
+      scales: { y: { beginAtZero: true } },
+    }}
+  />
+</div>;
 };
 
 export default RevenueBarChart;
